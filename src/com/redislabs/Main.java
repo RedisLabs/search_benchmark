@@ -9,6 +9,7 @@ import com.redislabs.research.redis.PartitionedIndex;
 import com.redislabs.research.redis.SimpleIndex;
 import org.apache.commons.cli.*;
 
+import javax.print.Doc;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -108,15 +109,15 @@ public class Main {
                     new Spec(Spec.prefix("name", false)),
                     numPartitions,
                     500,
-                    numPartitions * numThreads,
+                    numThreads*numPartitions,
                     redisHosts);
 
             // create an index by latlon and name
-            Index nameCityIndex = new PartitionedIndex(new SimpleIndex.Factory(), "nmg",
+            Index nameCityIndex =    new PartitionedIndex(new SimpleIndex.Factory(), "nmg",
                     new Spec(Spec.geo("latlon", Encoders.Geohash.PRECISION_40KM), Spec.prefix("name", false)),
                     numPartitions,
                     500,
-                    numPartitions * numThreads,
+                    numThreads*numPartitions,
                     redisHosts);
 
 
@@ -192,7 +193,7 @@ public class Main {
             int sz = queries.size();
             int x = 0;
             do {
-                engine.search(new Query("nm").filterPrefix("name", queries.get(x % sz)));
+                List<Document> docs = engine.search(new Query("nm").filterPrefix("name", queries.get(x % sz)));
                 ++x;
             } while (ctx.tick());
 
